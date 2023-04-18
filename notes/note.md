@@ -1,5 +1,5 @@
 ---
-layout:default
+layout: default
 ---
 
 # 1. Deep Potential发展时间线
