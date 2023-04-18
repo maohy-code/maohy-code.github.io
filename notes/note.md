@@ -1,4 +1,8 @@
-Deep Potential学习
+---
+layout:default
+title: Deep Potential学习
+description: 学就完事了
+---
 
 # 1. Deep Potential发展时间线
 
