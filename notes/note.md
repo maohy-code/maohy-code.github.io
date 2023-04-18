@@ -79,7 +79,7 @@ layout: default
 
 ![极坐标的定义](./img/230414-1.png)
 
-当$R_c$半径内的原子数小于$N_c$时，其余的维度就可以直接补0，相当于$r\rightarrow\infin$，在无穷远处放置原子，自然对中心原子的作用也就没有影响了。
+当$R_c$半径内的原子数小于$N_c$时，其余的维度就可以直接补0，相当于$r\rightarrow\infty$，在无穷远处放置原子，自然对中心原子的作用也就没有影响了。
 
 > The sub-networks are only coupled through summation in the last step of the scheme, when we compute the total energy. From a qualitative point of view, one can think about the sub-networks as providing different local energy contributions to the potential energy surface. To preserve the permutational symmetry of the input, in each sub-network the atoms are first assigned to different groups corresponding to the different atomic species, and then within each one of these groups the atoms are sorted in order of increasing distance to the origin. Global permutational symmetry is preserved by assigning the same parameters to all the sub-networks corresponding to atoms of the same species.
 
