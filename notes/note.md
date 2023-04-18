@@ -92,12 +92,12 @@ layout: default
 张林峰老师在另外一篇论文（Representing high-dimensional potential-energy surfaces for reactions at surfaces by neural networks）里给了这样一个通用公式：
 
 $$
-X = \sum_i{X_i}=\sum_i{X_i(\{\bm{r}_j\in N_i\})},N_i=\{j,r_{ij}<r_c\}
+X = \sum_i{X_i}=\sum_i{X_i(\{\boldsymbol{r}_j\in N_i\})},N_i=\{j,r_{ij}<r_c\}
 $$
 
 势能是个标量，因此可以代入到这个式子中。拆分(decompose)出来的每个$X_i$都被称为局部量(local quantity)。但是为什么可以这么拆呢？
 
-在Born-Oppenheimer近似的框架下，体系的基态势能E仅与原子核的位置有关，即$E=E(\widetilde{\bm{R}})$，其中$\widetilde{\bm{R}}=\{\bm{R}_1,\bm{R}_2,\dots,\bm{R}_N\}$。
+在Born-Oppenheimer近似的框架下，体系的基态势能E仅与原子核的位置有关，即$E=E(\widetilde{\boldsymbol{R}})$，其中$\widetilde{\boldsymbol{R}}=\{\boldsymbol{R}_1,\boldsymbol{R}_2,\dots,\boldsymbol{R}_N\}$。
 
 这里插一部分Born-Oppenheimer相关的内容。对于包含原子核和电子的系统，其基本的哈密顿量可以写为：
 
@@ -110,42 +110,42 @@ $$
 整个系统的薛定谔方程可以被写为：
 
 $$
-\hat{H}\Psi_s(\{\bm{r},\bm{R}\})=E_s\Psi_s(\{\bm{r},\bm{R}\})
+\hat{H}\Psi_s(\{\boldsymbol{r},\boldsymbol{R}\})=E_s\Psi_s(\{\boldsymbol{r},\boldsymbol{R}\})
 $$
 
 其中，$s=1,2,3,...$代表电子-原子核耦合系统中的各个态：
 
 $$
-\Psi_s(\{\bm{r},\bm{R}\}) = \sum_i{\chi_{si}(\{\bm{R}\})\Psi_i(\{\bm{r}\}:\{\bm{R}\})}
+\Psi_s(\{\boldsymbol{r},\boldsymbol{R}\}) = \sum_i{\chi_{si}(\{\boldsymbol{R}\})\Psi_i(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})}
 $$
 
-这个式子就是将电子-原子核的波函数(矩阵)，拆分为一系列固定原子核位置$\{\bm{R}\}$情况下电子态波函数$\Psi_i(\{\bm{r}\}:\{\bm{R}\})$的加和。（感觉和贝叶斯定理和全概率公式很像，毕竟都是与概率相关的）
+这个式子就是将电子-原子核的波函数(矩阵)，拆分为一系列固定原子核位置$\{\boldsymbol{R}\}$情况下电子态波函数$\Psi_i(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})$的加和。（感觉和贝叶斯定理和全概率公式很像，毕竟都是与概率相关的）
 
-进行变换(薛定谔方程左乘$\Psi_i(\{\bm{r}\}:\{\bm{R}\})$)可以得到:
+进行变换(薛定谔方程左乘$\Psi_i(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})$)可以得到:
 
 $$
-[T_N+E_i(\{\bm{R}\})-E_s]\chi_{si}(\{\bm{R}\}) = -\sum_{i'}{C_{ii'}\chi_{si'}(\{\bm{R}\})}
+[T_N+E_i(\{\boldsymbol{R}\})-E_s]\chi_{si}(\{\boldsymbol{R}\}) = -\sum_{i'}{C_{ii'}\chi_{si'}(\{\boldsymbol{R}\})}
 $$
 
 其中$C_{ii'}=A_{ii'}+B_{ii'}$,
 
 $$
-A_{ii'}(\{\bm{R}\})=\sum_J{\frac{m_e}{M_J}\bra{\Psi_i(\{\bm{r}\}:\{\bm{R}\})}\nabla_J\ket{\Psi_{i'}(\{\bm{r}\}:\{\bm{R}\})}\nabla_J} \\
+A_{ii'}(\{\boldsymbol{R}\})=\sum_J{\frac{m_e}{M_J}\bra{\Psi_i(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})}\nabla_J\ket{\Psi_{i'}(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})}\nabla_J} \\
 
-B_{ii'}(\{\bm{R}\})=\sum_J{\frac{m_e}{2M_J}\bra{\Psi_i(\{\bm{r}\}:\{\bm{R}\})}\nabla_J^2\ket{\Psi_{i'}(\{\bm{r}\}:\{\bm{R}\})}}
+B_{ii'}(\{\boldsymbol{R}\})=\sum_J{\frac{m_e}{2M_J}\bra{\Psi_i(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})}\nabla_J^2\ket{\Psi_{i'}(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})}}
 $$
 
-从A和B的式子中可以发现，与电子相关的项都被积掉了（在绝热近似的情况下，即非对角项互相正交，相乘为0），也就是说，A和B只与原子位置相关，与电子无关，这种情况代表着：假设电子在原子核移动时保持在给定状态$m$，虽然电子波函数$\Psi_i(\{\bm{r}\}:\{\bm{R}\})$发生了改变，状态$m$的能量也发生了改变，但是电子的态并没有发生改变，也没有发生不同自由度间的能量传递(仅在电子态发生变化时才有能量传递)。
+从A和B的式子中可以发现，与电子相关的项都被积掉了（在绝热近似的情况下，即非对角项互相正交，相乘为0），也就是说，A和B只与原子位置相关，与电子无关，这种情况代表着：假设电子在原子核移动时保持在给定状态$m$，虽然电子波函数$\Psi_i(\{\boldsymbol{r}\}:\{\boldsymbol{R}\})$发生了改变，状态$m$的能量也发生了改变，但是电子的态并没有发生改变，也没有发生不同自由度间的能量传递(仅在电子态发生变化时才有能量传递)。
 
-然后它证明了$A_{ii}=0$？进而推导得到$U_i(\{\bm{R}\})=E_i(\{\bm{R}\})+B_{ii}(\{\bm{R}\})$，即在绝热近似中，对于每个电子态$i$而言，核运动可以被描述为：
+然后它证明了$A_{ii}=0$？进而推导得到$U_i(\{\boldsymbol{R}\})=E_i(\{\boldsymbol{R}\})+B_{ii}(\{\boldsymbol{R}\})$，即在绝热近似中，对于每个电子态$i$而言，核运动可以被描述为：
 
 $$
-[-\sum_J{\frac{m_e}{2M_J}\nabla^2_J+U_i(\{\bm{R}\})-E_{ni}}]\chi_{ni}(\{\bm{R}\})=0
+[-\sum_J{\frac{m_e}{2M_J}\nabla^2_J+U_i(\{\boldsymbol{R}\})-E_{ni}}]\chi_{ni}(\{\boldsymbol{R}\})=0
 $$
 
 进一步忽略了$B_{ii}$项，就得到了计算声子能量的“冻结声子”法。实际上，由于核的质量非常大，因此$B_{ii}$项通常非常小，因此绝热近似是一个非常好的近似。
 
-综上，我们可以得到结论，在绝热近似的框架下，所有电子、原子核间的相互作用都仅与原子核的位置有关，对于某个特定的电子态$i$，其$U_i(\{\bm{R}\})$是随着原子核的移动而演化的。
+综上，我们可以得到结论，在绝热近似的框架下，所有电子、原子核间的相互作用都仅与原子核的位置有关，对于某个特定的电子态$i$，其$U_i(\{\boldsymbol{R}\})$是随着原子核的移动而演化的。
 
 在AMP的论文（Amp: A modular approach to machine learning in atomistic simulations）里，作者提到，构建经验势的一个常用方法就是将系统的总能拆分为原子能量的贡献。这说明“原子中心”框架（"atom-centered" framework）可能已经是一个通用的插值势能面（PES）的方法。（与“原子中心”相对的就是“图像中心（image-centered）”）
 
@@ -154,28 +154,28 @@ AMP的论文原始陈述是这样的：
 > Using the ***locality approximation***, each atomic energy contribution $E_i$ can be taken to depend only on the local environment of atom $i$ as
 >
 > $$
-> E=\sum_{i=1}^N{E_i(\widetilde{\bm{R}}^{(loc)})}
+> E=\sum_{i=1}^N{E_i(\widetilde{\boldsymbol{R}}^{(loc)})}
 > $$
 
 这里一个比较重要的词语就是“locality approximation”局域近似，但是局域近似具体指代的是哪个理论，作者并没有给出详细介绍，可能默认为非常常见的近似，还需要之后继续查询论文。这个理论来源尚不明确的公式就是之后Deep Potential、Deep H以及各类基于神经网络的材料计算工具的基础。
 
 之后可以补充一些关于“原子中心”与“图像中心”的理论。
 
-> As a result, an "atom-centered" framework of learning $E$ becomes possible. In this framework, instead of directly modeling the total image energy $E(\widetilde{\bm{R}})$, the atomic energy contributions $E_i$ are modeled, defined in the much dimensionally reduced space of local environments $\widetilde{\bm{R}}^{(loc)}$. This local environment is typically defined to be a sphere of radius $R_c$ (the "cutoff radius") surrounding the position of atom $i$; however, longer-range interactions can still be included via techniques such as **Ewald summations**. Similar to Eq. (3), a proper mapping from the space of now local environments into a feature space $F$ representing the functional dependence of local energetics can further improve interpolation, leading to
+> As a result, an "atom-centered" framework of learning $E$ becomes possible. In this framework, instead of directly modeling the total image energy $E(\widetilde{\boldsymbol{R}})$, the atomic energy contributions $E_i$ are modeled, defined in the much dimensionally reduced space of local environments $\widetilde{\boldsymbol{R}}^{(loc)}$. This local environment is typically defined to be a sphere of radius $R_c$ (the "cutoff radius") surrounding the position of atom $i$; however, longer-range interactions can still be included via techniques such as **Ewald summations**. Similar to Eq. (3), a proper mapping from the space of now local environments into a feature space $F$ representing the functional dependence of local energetics can further improve interpolation, leading to
 >
 > ![](./img/230416-1.png)
 >
-> where $\bm{G}_i(\widetilde{\bm{R}}^{(loc)})\in F$ in the feature vector of atom $i$, and $\hat{E}_i$ is the machine-learned function that approximates $E_i$. In the remainder of this paper, we will sometimes refer to the feature vector as the "fingerprint" of an atom's local environment, after the convention of **Behler** et al. [41].
+> where $\boldsymbol{G}_i(\widetilde{\boldsymbol{R}}^{(loc)})\in F$ in the feature vector of atom $i$, and $\hat{E}_i$ is the machine-learned function that approximates $E_i$. In the remainder of this paper, we will sometimes refer to the feature vector as the "fingerprint" of an atom's local environment, after the convention of **Behler** et al. [41].
 
 这里就引出了大部分材料领域使用的神经网络的基本框架，即：
 
-1. 所需数据集包括原子坐标$\widetilde{\bm{R}}_i$和与之对应的$E_i$（可以额外添加其它数据作为辅助）
+1. 所需数据集包括原子坐标$\widetilde{\boldsymbol{R}}_i$和与之对应的$E_i$（可以额外添加其它数据作为辅助）
 
-2. 在输入的原子坐标基础上计算得到局域原子坐标$\widetilde{\bm{R}}^{(loc)}$
+2. 在输入的原子坐标基础上计算得到局域原子坐标$\widetilde{\boldsymbol{R}}^{(loc)}$
 
-3. 在局域坐标的基础上得到特征向量$\bm{G}_i$（也就是物理描述符？），这个应该就是最重要的东西，后面embedding net之类的方法其实就是为了得到这个东西。
+3. 在局域坐标的基础上得到特征向量$\boldsymbol{G}_i$（也就是物理描述符？），这个应该就是最重要的东西，后面embedding net之类的方法其实就是为了得到这个东西。
 
-4. 训练神经网络，得到特征向量与能量的映射关系，即可以通过$\bm{G}_i$映射到$E_i$
+4. 训练神经网络，得到特征向量与能量的映射关系，即可以通过$\boldsymbol{G}_i$映射到$E_i$
 
 5. 对$E_i$进行加和，得到体系的总能量$E$
 
@@ -200,13 +200,13 @@ $$
 势能面是什么？在我的理解中，势能面实际上就应当是一个高维映射的函数，即
 
 $$
-pE=F(\bm{R}_1,\bm{R}_2,\dots,\bm{R}_{N})
+pE=F(\boldsymbol{R}_1,\boldsymbol{R}_2,\dots,\boldsymbol{R}_{N})
 $$
 
-假设以$R_c$为半径的局域环境中，圆心是1号原子，坐标为$\bm{R}_1$。那么假设1号原子要发生运动，它所受到的外势应当与$R_c$半径内所有其它原子的坐标有关，那么假设固定$R_c$半径内除1号原子以外其它所有原子的坐标，那么1号原子所受到的势能就仅与自己的位置有关了：
+假设以$R_c$为半径的局域环境中，圆心是1号原子，坐标为$\boldsymbol{R}_1$。那么假设1号原子要发生运动，它所受到的外势应当与$R_c$半径内所有其它原子的坐标有关，那么假设固定$R_c$半径内除1号原子以外其它所有原子的坐标，那么1号原子所受到的势能就仅与自己的位置有关了：
 
 $$
-pE=F(\bm{R}_1)=F(x_1,x_2,x_3)
+pE=F(\boldsymbol{R}_1)=F(x_1,x_2,x_3)
 $$
 
 那么显而易见，这个函数就可以绘制出将1号原子放置在$R_c$范围内每个点处会受到的势能。基于这个函数，绘制等能面也就成为了一种可能。
@@ -228,10 +228,10 @@ $$
 平移、旋转对称性倒是也很简单，做一个对称矩阵就好了，$r_cut$范围内的局域原子坐标本身就带有平移对称性，原子整体位移并不会影响原子间的相对位置,旋转对称性也是同理，构建对称矩阵的方式如下：
 
 $$
-\Omega^i\equiv \bm{R}^i(\bm{R}^i)^T
+\Omega^i\equiv \boldsymbol{R}^i(\boldsymbol{R}^i)^T
 $$
 
-其中，$\bm{R}^i$是3行$N_i$列的矩阵。话说回来，晶体点阵的旋转、平移对称性反而是破缺的，因为只在特定的平移矢量和旋转角度上，点阵才能保持不变。
+其中，$\boldsymbol{R}^i$是3行$N_i$列的矩阵。话说回来，晶体点阵的旋转、平移对称性反而是破缺的，因为只在特定的平移矢量和旋转角度上，点阵才能保持不变。
 
 但是这样构建出来的对称矩阵实际上是有问题的，因为它不能满足交换对称性。理论上，同种原子交换位置，体系的性质仍然不变，因为所有同种原子都是等价的。但是，在上面构建出来的对称矩阵中，交换原子位置相当于修改行或列的位置，会导致对称矩阵不再对称，这样显然是不合理的，因此这个对称矩阵不能直接被应用在描述符中。
 
