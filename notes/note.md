@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Phonopy 简介
 
 [Phonopy](https://phonopy.github.io/phonopy/) 是一个用于晶体材料声子性质计算的开源软件包。它基于第一性原理计算（如 VASP、Quantum ESPRESSO 等）生成的力常数，能够计算和分析晶体的声子色散关系、声子态密度、热力学性质等。Phonopy 广泛应用于材料科学领域，帮助研究者理解材料的热稳定性、热导率和相关物理性质。
