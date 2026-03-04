@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排座位程序</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h2 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        select {
+            padding: 8px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .person-list {
+            margin-top: 10px;
+        }
+        .person-item {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .seat-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .seat-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .seat {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+        }
+        .seat.male {
+            background-color: #e3f2fd;
+        }
+        .seat.female {
+            background-color: #fce4ec;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>排座位程序</h1>
+        
+        <!-- 座位配置 -->
+        <div class="section">
+            <h2>座位配置</h2>
+            <div class="form-group">
+                <label>行数:</label>
+                <input type="number" id="rows" min="1" value="5">
+            </div>
+            <div class="form-group">
+                <label>列数:</label>
+                <input type="number" id="cols" min="1" value="6">
+            </div>
+            <div class="form-group">
+                <label>排座方案:</label>
+                <select id="seatPlan">
+                    <option value="column">按列分组（男生一列，女生一列）</option>
+                    <option value="alternate">男女交替坐（尽量异性相邻）</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- 添加人员 -->
+        <div class="section">
+            <h2>添加人员</h2>
+            <div class="form-group">
+                <label>姓名:</label>
+                <input type="text" id="name" placeholder="请输入姓名">
+            </div>
+            <div class="form-group">
+                <label>性别:</label>
+                <select id="gender">
+                    <option value="male">男</option>
+                    <option value="female">女</option>
+                </select>
+            </div>
+            <button onclick="addPerson()">添加人员</button>
+            
+            <div class="form-group" style="margin-top: 15px;">
+                <label>CSV导入:</label>
+                <input type="file" id="csvFile" accept=".csv">
+            </div>
+            <button onclick="importFromCSV()">从CSV导入</button>
+            <div class="person-list" id="personList"></div>
+        </div>
+        
+        <!-- 禁止相邻设置 -->
+        <div class="section">
+            <h2>禁止相邻设置</h2>
+            <div class="form-group">
+                <label>人员1:</label>
+                <select id="person1"></select>
+            </div>
+            <div class="form-group">
+                <label>人员2:</label>
+                <select id="person2"></select>
+            </div>
+            <button onclick="addForbiddenPair()">添加禁止相邻</button>
+            
+            <div style="margin-top: 15px;">
+                <button onclick="exportForbiddenRules()">导出禁止相邻规则</button>
+                <input type="file" id="forbiddenFile" accept=".json" style="margin-left: 10px;">
+                <button onclick="importForbiddenRules()">导入禁止相邻规则</button>
+            </div>
+            <div class="person-list" id="forbiddenList"></div>
+        </div>
+        
+        <!-- 生成座位 -->
+        <div class="section">
+            <button onclick="generateSeats()">随机生成座位</button>
+            <button onclick="exportSeats()" style="margin-left: 10px;">导出座位为CSV</button>
+            <input type="file" id="seatFile" accept=".csv" style="margin-left: 10px;">
+            <button onclick="importSeats()" style="margin-left: 5px;">导入座位表</button>
+            <div id="error" class="error"></div>
+            <div style="margin-top: 10px; font-size: 14px; color: #666;">提示：点击座位可以选择两个座位进行交换</div>
+        </div>
+        
+        <!-- 座位显示 -->
+        <div class="section">
+            <h2>座位安排</h2>
+            <div class="seat-container" id="seatContainer"></div>
+        </div>
+    </div>
+    
+    <script>
+        let persons = [];
+        let forbiddenPairs = [];
+        
+        function addPerson() {
+            const name = document.getElementById('name').value.trim();
+            const gender = document.getElementById('gender').value;
+            
+            if (!name) {
+                alert('请输入姓名');
+                return;
+            }
+            
+            persons.push({ id: Date.now(), name, gender });
+            updatePersonList();
+            updatePersonSelects();
+            document.getElementById('name').value = '';
+        }
+        
+        function importFromCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请选择CSV文件');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const lines = content.split('\n');
+                let importedCount = 0;
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const parts = line.split(',');
+                    if (parts.length < 2) continue;
+                    
+                    const name = parts[0].trim();
+                    const genderStr = parts[1].trim().toLowerCase();
+                    
+                    let gender;
+                    if (genderStr === '男' || genderStr === 'male') {
+                        gender = 'male';
+                    } else if (genderStr === '女' || genderStr === 'female') {
+                        gender = 'female';
+                    } else {
+                        continue;
+                    }
+                    
+                    if (name) {
+                        persons.push({ id: Date.now() + i, name, gender });
+                        importedCount++;
+                    }
+                }
+                
+                if (importedCount > 0) {
+                    updatePersonList();
+                    updatePersonSelects();
+                    alert(`成功导入 ${importedCount} 人`);
+                } else {
+                    alert('未找到有效的人员数据');
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('读取文件失败');
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        function updatePersonList() {
+            const list = document.getElementById('personList');
+            list.innerHTML = '';
+            persons.forEach(person => {
+                const item = document.createElement('div');
+                item.className = 'person-item';
+                item.textContent = `${person.name} (${person.gender === 'male' ? '男' : '女'})`;
+                list.appendChild(item);
+            });
+        }
+        
+        function updatePersonSelects() {
+            const select1 = document.getElementById('person1');
+            const select2 = document.getElementById('person2');
+            
+            // 按姓名首字母排序
+            const sortedPersons = [...persons].sort((a, b) => a.name.localeCompare(b.name));
+            
+            [select1, select2].forEach(select => {
+                select.innerHTML = '';
+                sortedPersons.forEach(person => {
+                    const option = document.createElement('option');
+                    option.value = person.id;
+                    option.textContent = person.name;
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+        function addForbiddenPair() {
+            const person1Id = parseInt(document.getElementById('person1').value);
+            const person2Id = parseInt(document.getElementById('person2').value);
+            
+            if (person1Id === person2Id) {
+                alert('不能选择同一个人');
+                return;
+            }
+            
+            const existing = forbiddenPairs.some(pair => 
+                (pair.person1 === person1Id && pair.person2 === person2Id) ||
+                (pair.person1 === person2Id && pair.person2 === person1Id)
+            );
+            
+            if (existing) {
+                alert('该禁止相邻关系已存在');
+                return;
+            }
+            
+            forbiddenPairs.push({ person1: person1Id, person2: person2Id });
+            updateForbiddenList();
+        }
+        
+        function updateForbiddenList() {
+            const list = document.getElementById('forbiddenList');
+            list.innerHTML = '';
+            forbiddenPairs.forEach((pair, index) => {
+                const person1 = persons.find(p => p.id === pair.person1);
+                const person2 = persons.find(p => p.id === pair.person2);
+                if (person1 && person2) {
+                    const item = document.createElement('div');
+                    item.className = 'person-item';
+                    item.innerHTML = `${person1.name} 和 ${person2.name} 不能相邻 <button onclick="removeForbiddenPair(${index})" style="margin-left: 10px; padding: 2px 8px; font-size: 12px;">删除</button>`;
+                    list.appendChild(item);
+                }
+            });
+        }
+        
+        function removeForbiddenPair(index) {
+            forbiddenPairs.splice(index, 1);
+            updateForbiddenList();
+        }
+        
+        function exportForbiddenRules() {
+            const exportData = {
+                forbiddenPairs: forbiddenPairs.map(pair => ({
+                    person1: persons.find(p => p.id === pair.person1)?.name || pair.person1,
+                    person2: persons.find(p => p.id === pair.person2)?.name || pair.person2
+                })),
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `forbidden_rules_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function importForbiddenRules() {
+            const fileInput = document.getElementById('forbiddenFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请选择JSON文件');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    const importedPairs = data.forbiddenPairs || [];
+                    
+                    // 转换姓名为ID
+                    const newPairs = [];
+                    for (const pair of importedPairs) {
+                        const person1 = persons.find(p => p.name === pair.person1);
+                        const person2 = persons.find(p => p.name === pair.person2);
+                        
+                        if (person1 && person2) {
+                            // 检查是否已存在
+                            const existing = forbiddenPairs.some(fp => 
+                                (fp.person1 === person1.id && fp.person2 === person2.id) ||
+                                (fp.person1 === person2.id && fp.person2 === person1.id)
+                            );
+                            
+                            if (!existing) {
+                                newPairs.push({ person1: person1.id, person2: person2.id });
+                            }
+                        }
+                    }
+                    
+                    forbiddenPairs.push(...newPairs);
+                    updateForbiddenList();
+                    alert(`成功导入 ${newPairs.length} 条禁止相邻规则`);
+                } catch (error) {
+                    alert('导入失败，请检查文件格式');
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('读取文件失败');
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        function generateSeats() {
+            const rows = parseInt(document.getElementById('rows').value);
+            const cols = parseInt(document.getElementById('cols').value);
+            const totalSeats = rows * cols;
+            
+            if (persons.length > totalSeats) {
+                document.getElementById('error').textContent = `座位数量不足，需要至少 ${persons.length} 个座位`;
+                return;
+            }
+            
+            document.getElementById('error').textContent = '';
+            
+            // 尝试生成座位安排
+            let attempts = 0;
+            const maxAttempts = 1000;
+            let seatArrangement = null;
+            
+            while (attempts < maxAttempts) {
+                // 创建座位矩阵
+                const seats = Array(rows).fill().map(() => Array(cols).fill(null));
+                
+                // 按性别分组
+                const males = persons.filter(p => p.gender === 'male');
+                const females = persons.filter(p => p.gender === 'female');
+                
+                // 随机打乱
+                shuffleArray(males);
+                shuffleArray(females);
+                
+                // 根据选择的排座方案填充座位
+                const seatPlan = document.getElementById('seatPlan').value;
+                let maleIndex = 0;
+                let femaleIndex = 0;
+                
+                if (seatPlan === 'column') {
+                    // 按列分组：男生一列，女生一列
+                    for (let i = 0; i < rows; i++) {
+                        for (let j = 0; j < cols; j++) {
+                            // 每列选择一个主要性别
+                            const isMaleColumn = (j % 2 === 0);
+                            
+                            if (isMaleColumn && maleIndex < males.length) {
+                                seats[i][j] = males[maleIndex++];
+                            } else if (!isMaleColumn && femaleIndex < females.length) {
+                                seats[i][j] = females[femaleIndex++];
+                            } else if (maleIndex < males.length) {
+                                seats[i][j] = males[maleIndex++];
+                            } else if (femaleIndex < females.length) {
+                                seats[i][j] = females[femaleIndex++];
+                            }
+                        }
+                    }
+                } else if (seatPlan === 'alternate') {
+                    // 男女交替坐：尽量异性相邻
+                    for (let i = 0; i < rows; i++) {
+                        for (let j = 0; j < cols; j++) {
+                            // 计算当前位置应该放男生还是女生
+                            // 按棋盘格模式排列
+                            const shouldBeMale = (i + j) % 2 === 0;
+                            
+                            if (shouldBeMale && maleIndex < males.length) {
+                                seats[i][j] = males[maleIndex++];
+                            } else if (!shouldBeMale && femaleIndex < females.length) {
+                                seats[i][j] = females[femaleIndex++];
+                            } else if (maleIndex < males.length) {
+                                seats[i][j] = males[maleIndex++];
+                            } else if (femaleIndex < females.length) {
+                                seats[i][j] = females[femaleIndex++];
+                            }
+                        }
+                    }
+                }
+                
+                // 检查禁止相邻的情况
+                let valid = true;
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        const current = seats[i][j];
+                        if (!current) continue;
+                        
+                        // 检查前后左右及平移情况（环形布局）
+                        const directions = [
+                            [-1, 0], [1, 0], [0, -1], [0, 1],  // 上下左右
+                            [-1, -1], [-1, 1], [1, -1], [1, 1]   // 对角线（平移情况）
+                        ];
+                        
+                        for (const [dx, dy] of directions) {
+                            // 环形布局：处理边界情况
+                            let ni = (i + dx + rows) % rows;
+                            let nj = (j + dy + cols) % cols;
+                            
+                            const neighbor = seats[ni][nj];
+                            if (neighbor) {
+                                const isForbidden = forbiddenPairs.some(pair => 
+                                    (pair.person1 === current.id && pair.person2 === neighbor.id) ||
+                                    (pair.person1 === neighbor.id && pair.person2 === current.id)
+                                );
+                                if (isForbidden) {
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (!valid) break;
+                    }
+                    if (!valid) break;
+                }
+                
+                if (valid) {
+                    seatArrangement = seats;
+                    break;
+                }
+                
+                attempts++;
+            }
+            
+            if (!seatArrangement) {
+                document.getElementById('error').textContent = '无法满足所有禁止相邻条件，请调整设置';
+                return;
+            }
+            
+            // 保存座位矩阵
+            seatMatrix = seatArrangement;
+            selectedSeat = null;
+            
+            // 生成座位
+            const container = document.getElementById('seatContainer');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('div');
+                row.className = 'seat-row';
+                
+                for (let j = 0; j < cols; j++) {
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.onclick = () => selectSeat(i, j);
+                    
+                    const person = seatArrangement[i][j];
+                    if (person) {
+                        seat.className += ` ${person.gender}`;
+                        seat.textContent = person.name;
+                    }
+                    
+                    row.appendChild(seat);
+                }
+                
+                container.appendChild(row);
+            }
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        // 座位交换功能
+        let selectedSeat = null;
+        let seatMatrix = [];
+        
+        function selectSeat(row, col) {
+            const seat = seatMatrix[row][col];
+            if (!seat) return;
+            
+            if (!selectedSeat) {
+                // 选择第一个座位
+                selectedSeat = { row, col, person: seat };
+                const seatElement = document.querySelector(`.seat-row:nth-child(${row + 1}) .seat:nth-child(${col + 1})`);
+                if (seatElement) {
+                    seatElement.style.borderColor = 'red';
+                    seatElement.style.borderWidth = '3px';
+                }
+            } else {
+                // 选择第二个座位，进行交换
+                const seatElement1 = document.querySelector(`.seat-row:nth-child(${selectedSeat.row + 1}) .seat:nth-child(${selectedSeat.col + 1})`);
+                const seatElement2 = document.querySelector(`.seat-row:nth-child(${row + 1}) .seat:nth-child(${col + 1})`);
+                
+                // 交换座位
+                [seatMatrix[selectedSeat.row][selectedSeat.col], seatMatrix[row][col]] = 
+                    [seatMatrix[row][col], seatMatrix[selectedSeat.row][selectedSeat.col]];
+                
+                // 更新UI
+                if (seatElement1) {
+                    seatElement1.style.borderColor = '';
+                    seatElement1.style.borderWidth = '';
+                    const person = seatMatrix[selectedSeat.row][selectedSeat.col];
+                    if (person) {
+                        seatElement1.className = `seat ${person.gender}`;
+                        seatElement1.textContent = person.name;
+                    } else {
+                        seatElement1.className = 'seat';
+                        seatElement1.textContent = '';
+                    }
+                }
+                
+                if (seatElement2) {
+                    const person = seatMatrix[row][col];
+                    if (person) {
+                        seatElement2.className = `seat ${person.gender}`;
+                        seatElement2.textContent = person.name;
+                    } else {
+                        seatElement2.className = 'seat';
+                        seatElement2.textContent = '';
+                    }
+                }
+                
+                // 检查是否满足禁止相邻条件
+                checkForbiddenAdjacents();
+                
+                selectedSeat = null;
+            }
+        }
+        
+        function checkForbiddenAdjacents() {
+            if (!seatMatrix || seatMatrix.length === 0) return;
+            
+            const rows = seatMatrix.length;
+            const cols = seatMatrix[0].length;
+            const forbiddenPairsFound = [];
+            
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const current = seatMatrix[i][j];
+                    if (!current) continue;
+                    
+                    // 检查前后左右及平移情况（环形布局）
+                    const directions = [
+                        [-1, 0], [1, 0], [0, -1], [0, 1],  // 上下左右
+                        [-1, -1], [-1, 1], [1, -1], [1, 1]   // 对角线（平移情况）
+                    ];
+                    
+                    for (const [dx, dy] of directions) {
+                        // 环形布局：处理边界情况
+                        let ni = (i + dx + rows) % rows;
+                        let nj = (j + dy + cols) % cols;
+                        
+                        const neighbor = seatMatrix[ni][nj];
+                        if (neighbor) {
+                            const isForbidden = forbiddenPairs.some(pair => 
+                                (pair.person1 === current.id && pair.person2 === neighbor.id) ||
+                                (pair.person1 === neighbor.id && pair.person2 === current.id)
+                            );
+                            if (isForbidden) {
+                                forbiddenPairsFound.push({ current: current.name, neighbor: neighbor.name });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (forbiddenPairsFound.length > 0) {
+                let message = '警告：以下人员违反了禁止相邻规则：\n';
+                const uniquePairs = new Set();
+                
+                forbiddenPairsFound.forEach(pair => {
+                    const key = [pair.current, pair.neighbor].sort().join('-');
+                    uniquePairs.add(key);
+                });
+                
+                uniquePairs.forEach(key => {
+                    const [name1, name2] = key.split('-');
+                    message += `${name1} 和 ${name2}\n`;
+                });
+                
+                alert(message);
+            }
+        }
+        
+        function exportSeats() {
+            if (!seatMatrix || seatMatrix.length === 0) {
+                alert('请先生成座位');
+                return;
+            }
+            
+            let csvContent = '';
+            
+            for (let i = 0; i < seatMatrix.length; i++) {
+                const rowNames = [];
+                for (let j = 0; j < seatMatrix[i].length; j++) {
+                    const person = seatMatrix[i][j];
+                    rowNames.push(person ? person.name : '');
+                }
+                csvContent += rowNames.join(',') + '\n';
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `seats_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function importSeats() {
+            const fileInput = document.getElementById('seatFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请选择CSV文件');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    const lines = content.split('\n');
+                    
+                    // 过滤空行
+                    const nonEmptyLines = lines.filter(line => line.trim() !== '');
+                    if (nonEmptyLines.length === 0) {
+                        alert('CSV文件为空');
+                        return;
+                    }
+                    
+                    const rows = nonEmptyLines.length;
+                    const cols = nonEmptyLines[0].split(',').length;
+                    
+                    if (cols === 0) {
+                        alert('CSV文件格式不正确');
+                        return;
+                    }
+                    
+                    // 创建座位矩阵
+                    const seats = Array(rows).fill().map(() => Array(cols).fill(null));
+                    let foundPersons = 0;
+                    
+                    for (let i = 0; i < rows; i++) {
+                        const line = nonEmptyLines[i].trim();
+                        const names = line.split(',');
+                        
+                        for (let j = 0; j < names.length; j++) {
+                            const name = names[j].trim();
+                            if (name) {
+                                // 查找对应的人员（忽略大小写，宽松匹配）
+                                const person = persons.find(p => 
+                                    p.name.trim().toLowerCase().includes(name.toLowerCase()) ||
+                                    name.toLowerCase().includes(p.name.trim().toLowerCase())
+                                );
+                                if (person) {
+                                    seats[i][j] = person;
+                                    foundPersons++;
+                                } else {
+                                    console.log(`未找到人员: ${name}`);
+                                    console.log('当前人员列表:', persons.map(p => p.name));
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 保存座位矩阵并显示
+                    seatMatrix = seats;
+                    selectedSeat = null;
+                    
+                    // 更新UI
+                    const container = document.getElementById('seatContainer');
+                    container.innerHTML = '';
+                    
+                    for (let i = 0; i < rows; i++) {
+                        const row = document.createElement('div');
+                        row.className = 'seat-row';
+                        
+                        for (let j = 0; j < cols; j++) {
+                            const seat = document.createElement('div');
+                            seat.className = 'seat';
+                            seat.onclick = () => selectSeat(i, j);
+                            
+                            const person = seats[i][j];
+                            if (person) {
+                                seat.className += ` ${person.gender}`;
+                                seat.textContent = person.name;
+                            }
+                            
+                            row.appendChild(seat);
+                        }
+                        
+                        container.appendChild(row);
+                    }
+                    
+                    // 检查是否满足禁止相邻条件
+                    checkForbiddenAdjacents();
+                    
+                    if (foundPersons === 0) {
+                        alert('未找到任何匹配的人员，请先添加人员');
+                    } else {
+                        alert(`座位表导入成功，找到 ${foundPersons} 个人员`);
+                    }
+                } catch (error) {
+                    console.error('导入错误:', error);
+                    alert('导入失败，请检查文件格式');
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('读取文件失败');
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+        }
+    </script>
+    
+    <!-- 免责声明 -->
+    <div style="margin-top: 30px; padding: 15px; background-color: #f5f5f5; border-radius: 5px; font-size: 14px; text-align: center;">
+        <p><strong>免责声明：</strong>本程序所有操作均在本地浏览器中进行，不会将任何数据上传到云端。所有人员信息和座位安排仅存储在您的本地设备上，刷新页面后数据将会丢失。</p>
+    </div>
+</body>
+</html>
