@@ -1,41 +1,43 @@
----
-layout: default
----
+# 🍁 maohy-code.github.io
 
-## Welcome to GitHub Pages
+> (=^･^=)
 
-You can use the [editor on GitHub](notes/note.html) to maintain and preview the content for your website in Markdown files.
+个人 GitHub Pages 站点，用于存放各类 Web 小项目和学习笔记。
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## 站点结构
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```
+/
+├── index.md                ← 首页（项目导航）
+├── notes/                  ← 学习笔记
+│   └── phonopy/            ← Phonopy 声子计算笔记
+├── tools/                  ← 在线小工具
+│   └── seat-arranger/      ← 座位排布工具
+└── _layouts/               ← Jekyll 页面布局
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+## 使用方式
 
-### Jekyll Themes
+本站使用 Jekyll + GitHub Actions 自动构建部署。
+向 `main` 分支推送代码即可自动发布到 `https://maohy-code.github.io/`。
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/maohy-code/maohy-code.github.io/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+### 添加新项目
 
-### Support or Contact
+在根目录下创建子文件夹，放入 `index.md` 或 `index.html` 即可：
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+```
+mkdir my-project
+echo "# 新项目" > my-project/index.md
+git add .
+git commit -m "add: my-project"
+git push
+```
+
+访问 `https://maohy-code.github.io/my-project/` 即可看到效果。
+
+## 技术栈
+
+- [Jekyll](https://jekyllrb.com/) — 静态站点生成
+- [Slate 主题](https://github.com/pages-themes/slate) — 页面样式
+- [MathJax](https://www.mathjax.org/) — 数学公式渲染
+- [GitHub Pages](https://pages.github.com/) — 托管与自动部署
